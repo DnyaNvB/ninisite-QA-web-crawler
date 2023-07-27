@@ -28,6 +28,9 @@ def handle_error(url):
 
 
 def QA_links(webpage_URLs):
+
+
+
     return NotImplemented
 
 
@@ -38,10 +41,11 @@ def get_webpage_URLs():
         if page_nom == 1:
             URL = "https://roocket.ir/tag/%D9%BE%D8%A7%DB%8C%D8%AA%D9%88%D9%86?type=questions#tag-page"
         else:
-            URL = f'https://roocket.ir/tag/%D9%BE%D8%A7%DB%8C%D8%AA%D9%88%D9%86?page={page_nom}#tag-page'
+            URL = f'https://roocket.ir/tag/%D9%BE%D8%A7%DB%8C%D8%AA%D9%88%D9%86?type=questions&page={page_nom}#tag-page'
 
         webpage_urls.append(URL)
         page_nom += 1
+    print(webpage_urls)
     return webpage_urls
 
 
