@@ -2,6 +2,7 @@ from urllib.error import HTTPError
 import requests
 from bs4 import BeautifulSoup
 import re
+import csv
 
 
 def handle_error(url):
@@ -27,6 +28,14 @@ def handle_error(url):
         print('Timeout error occurred:  {}'.format(timeout_err))
     except requests.exceptions.RequestException as req_err:
         print(req_err)
+
+
+def to_csv(fields, links_list, file_name):
+    with open(file_name, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(fields)
+        for link in links_list:
+            writer.writerow([link])
 
 
 def scrape(url):
@@ -58,3 +67,4 @@ def QA_URLs(URL):
 if __name__ == "__main__":
     URL = 'https://www.ninisite.com/discussion/forum/109/%d8%a7%d9%93%d8%b1%d8%a7%db%8c%d8%b4-%d9%88-%d8%b2%db%8c%d8%a8%d8%a7%d9%8a%d9%94%db%8c?page='
     urls = QA_URLs(URL)
+    to_csv(['QA links'], urls, 'QA_links.csv')
