@@ -1,5 +1,7 @@
 from urllib.error import HTTPError
 import requests
+from bs4 import BeautifulSoup
+import re
 
 
 def handle_error(url):
@@ -27,28 +29,32 @@ def handle_error(url):
         print(req_err)
 
 
-def QA_links(webpage_URLs):
+def scrape(url):
+    """Scrape the website.
+
+    Args:
+        url (str): The URL of the website to scrape.
+    """
+    handle_error(url)
+    html = requests.get(url)
+    bs = BeautifulSoup(html.content, 'html.parser')
+    return bs
 
 
+def QA_URLs(URL):
+    page_num = 1
+    QA_URL_list = list()
+    while page_num <= 2:
+        URL = URL + str(page_num)
+        soup = scrape(URL)
+        for link in soup.findAll('a', href=re.compile('/discussion/topic/')):
+            link = 'https://www.ninisite.com' + link.get('href')
+            QA_URL_list.append(link)
+        page_num += 1
 
-    return NotImplemented
-
-
-def get_webpage_URLs():
-    page_nom = 1
-    webpage_urls = list()
-    while page_nom <= 28:
-        if page_nom == 1:
-            URL = "https://roocket.ir/tag/%D9%BE%D8%A7%DB%8C%D8%AA%D9%88%D9%86?type=questions#tag-page"
-        else:
-            URL = f'https://roocket.ir/tag/%D9%BE%D8%A7%DB%8C%D8%AA%D9%88%D9%86?type=questions&page={page_nom}#tag-page'
-
-        webpage_urls.append(URL)
-        page_nom += 1
-    print(webpage_urls)
-    return webpage_urls
+    return QA_URL_list
 
 
 if __name__ == "__main__":
-    urls = get_webpage_URLs()
-    QA_links(urls)
+    URL = 'https://www.ninisite.com/discussion/forum/109/%d8%a7%d9%93%d8%b1%d8%a7%db%8c%d8%b4-%d9%88-%d8%b2%db%8c%d8%a8%d8%a7%d9%8a%d9%94%db%8c?page='
+    urls = QA_URLs(URL)
