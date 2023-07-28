@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import csv
-
+import pandas as pd
 
 def handle_error(url):
     """Handles errors that may occur when scraping the website.
@@ -30,12 +30,12 @@ def handle_error(url):
         print(req_err)
 
 
-def to_csv(fields, links_list, file_name):
+def to_csv(fields, rows, file_name):
     with open(file_name, 'w') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
-        for link in links_list:
-            writer.writerow([link])
+        for row in rows:
+            writer.writerow([row])
 
 
 def scrape(url):
@@ -55,19 +55,31 @@ def QA_datas(QA_URL_list):
         soup = scrape(QA_URL_list[0])
         topic = soup.find("title").text.replace(" | تبادل نظر نی نی سایت", '')
         topic_data = soup.find(class_="col-xs-12 date-time p-x-0")
-        visits_count = topic_data.find(class_="pull-xs-right").text.replace("\n\n", '').replace(" بازدید", '')
-        posts_count = topic_data.find_all(class_="pull-xs-right")[1].text.replace('|', '').replace(" پست", '')
+        visits_count = topic_data.find(class_="pull-xs-right").text.strip().replace(" بازدید", '')
+        posts_count = topic_data.find_all(class_="pull-xs-right")[1].text.strip().replace(" پست", '')
         article = soup.find_all(class_="topic-post m-b-1 p-b-0 clearfix")
+
         data = []
         for user in article:
         # find all columns in each row
-            nickname = user.find(class_="col-xs-9 col-md-12 text-md-center text-xs-right nickname").text
-            #posts_count_user = user.find(class_="text-xs-right pull-sm-right pull-md-none text-md-center post-count").text
-            message = user.find(class_="post-message topic-post__message col-xs-12 fr-view m-b-1 p-x-1").text
-            print(f'nickname: {nickname}, message: {message}')
-            #data.append([topic, visits_count, posts_count, nickname, message])
-        #print(data)
+            try:
+                nickname = user.find(class_="col-xs-9 col-md-12 text-md-center text-xs-right nickname").text.strip()
+            except:
+                continue
+            try:
+                posts_count_user = user.find(class_="text-xs-right pull-sm-right pull-md-none text-md-center post-count").text.strip().replace("تعداد پست: ", '')
+            except:
+                posts_count_user = None
+            try:
+                message = user.find(class_="post-message topic-post__message col-xs-12 fr-view m-b-1 p-x-1").text.strip()
+            except:
+                message = None
 
+            data.append([topic, visits_count, posts_count, nickname, posts_count_user, message])
+        return data
+        #df = pd.DataFrame(data, columns=["موضوع گفت‌و‌گو", "تعداد بازدید کاربر سوال‌کننده", "تعداد بازدید پست سوال", "نام کاربر", "تعداد بازدید", "متن پیام کاربر"])
+
+        #print(df)
 
 def QA_URLs(URL):
     page_num = 1
@@ -87,4 +99,6 @@ if __name__ == "__main__":
     URL = "https://www.ninisite.com/discussion/forum/109/%d8%a7%d9%93%d8%b1%d8%a7%db%8c%d8%b4-%d9%88-%d8%b2%db%8c%d8%a8%d8%a7%d9%8a%d9%94%db%8c?page="
     urls = QA_URLs(URL)
     # to_csv(['QA links'], urls, 'QA_links.csv')
-    QA_datas(urls)
+    columns = ["موضوع گفت‌و‌گو", "تعداد بازدید کاربر سوال‌کننده", "تعداد بازدید پست سوال", "نام کاربر", "تعداد بازدید", "متن پیام کاربر"]
+    datas = QA_datas(urls)
+    to_csv(columns, datas, 'crawling_metadatas.csv')
