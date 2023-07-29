@@ -34,9 +34,9 @@ def scrape(url):
     return bs
 
 
-def extract_text(element, class_name):
+def extract_text(element, class_name, string_to_replace1, string_to_replace2):
     try:
-        return element.find(class_=class_name).text.strip()
+        return element.find(class_=class_name).text.strip().replace(string_to_replace1, '').replace(string_to_replace2, '')
     except AttributeError:
         return None
 
@@ -44,16 +44,16 @@ def extract_text(element, class_name):
 def qa_data(qa_url_list):
     for url in qa_url_list:
         soup = scrape(url[0])
-        topic = extract_text(soup, "title").replace(" | تبادل نظر نی نی سایت", '')
+        topic = extract_text(soup, "title", " | تبادل نظر نی نی سایت", '')
         topic_data = soup.find(class_="col-xs-12 date-time p-x-0")
-        visits_count = extract_text(topic_data, "pull-xs-right").replace(" بازدید", '')
-        posts_count = extract_text(topic_data, "pull-xs-right").replace(" پست", '').replace('|', '')
+        visits_count = extract_text(topic_data, "pull-xs-right", " بازدید", '')
+        posts_count = extract_text(topic_data, "pull-xs-right", " پست", '|')
         articles = soup.find_all(class_="topic-post m-b-1 p-b-0 clearfix")
 
         for article in articles:
-            nickname = extract_text(article, "col-xs-9 col-md-12 text-md-center text-xs-right nickname")
-            posts_count_user = extract_text(article, "text-xs-right pull-sm-right pull-md-none text-md-center post-count").replace("تعداد پست: ", '')
-            message = extract_text(article, "post-message topic-post__message col-xs-12 fr-view m-b-1 p-x-1")
+            nickname = extract_text(article, "col-xs-9 col-md-12 text-md-center text-xs-right nickname", '', '')
+            posts_count_user = extract_text(article, "text-xs-right pull-sm-right pull-md-none text-md-center post-count", "تعداد پست: ", '')
+            message = extract_text(article, "post-message topic-post__message col-xs-12 fr-view m-b-1 p-x-1", '', '')
             yield [topic, visits_count, posts_count, nickname, posts_count_user, message]
 
 
