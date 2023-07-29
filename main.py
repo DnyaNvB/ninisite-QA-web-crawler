@@ -11,7 +11,7 @@ MESSAGE_CLASS = "post-message topic-post__message col-xs-12 fr-view m-b-1 p-x-1"
 TOPIC_CLASS = "col-xs-12 date-time p-x-0"
 TOPIC_POST_CLASS = "topic-post m-b-1 p-b-0 clearfix"
 EXTRA_INF = r"https?://?[^/]*ninisite[^/]*/[^/]+/[^/]+/|https?://?[^/]*/ninisite[^/]*/[^/]+/[^/]+/[^/]+/"
-CSV_HEADERS = ["topic", "visits count for article", "username", "visit count", "message"]
+CSV_HEADERS = ["Discussion Topic", "Visits count for the discussion", "Username", "User's post count", "User's message"]
 URL = "https://www.ninisite.com/discussion/forum/109/%d8%a7%d9%93%d8%b1%d8%a7%db%8c%d8%b4-%d9%88-%d8%b2%db%8c%d8%a8%d8%a7%d9%8a%d9%94%db%8c?page="
 SESSION = requests.Session()
 
@@ -83,7 +83,10 @@ def extract_data(soup):
             List[Tuple[str, str, str, str, str]]: A list of tuples where each tuple contains
                 the topic, visit count, username, visit count, and message.
         """
-    topic = soup.find("title").text.replace(TITLE_SUFFIX, '').strip()
+    topic = None
+    title = soup.find("title")
+    if title:
+        topic = re.sub(r"صفحه \d+", '', title.text.replace(TITLE_SUFFIX, '').strip())
     topic_data = soup.find(class_=TOPIC_CLASS)
     visit_count = extract_text(topic_data, "pull-xs-right", [(" بازدید", '')])
     articles = soup.find_all(class_=TOPIC_POST_CLASS)
