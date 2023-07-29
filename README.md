@@ -39,7 +39,7 @@ We appreciate your contributions! Please fork this repository and make your chan
 
 ## Bugs and Issues
 
-If you encounter any bugs or issues, please [create an issue](link-to-your-repo-issues-page) on GitHub.
+If you encounter any bugs or issues, please [create an issue](https://github.com/DnyaNvB/ninisite-QA-web-crawler/issues/new) on GitHub.
 
 ## Contact
 
